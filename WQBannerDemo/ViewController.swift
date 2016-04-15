@@ -17,28 +17,36 @@ class ViewController: UIViewController,WQBannerViewDelegate {
         // Do any additional setup after loading the view, typically from a nib.
 
         let dataArray: NSMutableArray = NSMutableArray.init(capacity: 0)
+        var dic = NSDictionary.init(objects: ["http://pic01.babytreeimg.com/foto3/photos/2014/0211/68/2/4170109a41ca935610bf8_b.png","12"], forKeys: ["image_url","image_id"], count: 2)
 
-        dataArray.addObject("http://pic01.babytreeimg.com/foto3/photos/2014/0211/68/2/4170109a41ca935610bf8_b.png")
 
+        dataArray.addObject(dic)
 
-        dataArray.addObject("http://pic01.babytreeimg.com/foto3/photos/2014/0127/19/9/4170109a267ca641c41ebb_b.png")
+        dic = NSDictionary.init(objects: ["http://pic01.babytreeimg.com/foto3/photos/2014/0127/19/9/4170109a267ca641c41ebb_b.png","13"], forKeys: ["image_url","image_id"],count: 2)
+        dataArray.addObject(dic)
+
+        dic = NSDictionary.init(objects: ["http://pic02.babytreeimg.com/foto3/photos/2014/0207/59/4/4170109a17eca86465f8a4_b.jpg","14"], forKeys: ["image_url","image_id"],count: 2)
         
-        dataArray.addObject("http://pic02.babytreeimg.com/foto3/photos/2014/0207/59/4/4170109a17eca86465f8a4_b.jpg")
-
+        dataArray.addObject(dic)
+        print(dataArray)
 
 
         if (self.bannerView != nil) {
             self.bannerView?.reloadBannerWithData(dataArray)
         }
         else {
-            self.bannerView = WQBannerView.init(frame: CGRectMake(0, 50, self.view.frame.size.width, 140), direction: BannerViewScrollDirection.ScrollDirectionPortait, images: dataArray)
+            self.bannerView = WQBannerView.init(frame: CGRectMake(0, 50, self.view.frame.size.width, 140), direction: BannerViewScrollDirection.ScrollDirectionLandscape, images: dataArray)
             self.bannerView?.backgroundColor = UIColor.redColor()
             self.bannerView!.rollingDelayTime = 4.0
             self.bannerView!.delegate = self
+            self.bannerView?.defaultpageColor = UIColor.redColor()
+            self.bannerView?.selectpageColor = UIColor.blueColor()
+            self.bannerView?.imageKey = "image_url"
+            self.bannerView?.imageId = "image_id"
             self.bannerView?.setSquare(0)
             self.bannerView!.setPageControlStyle(BannerViewPageStyle.PageStyle_Middle)
             self.bannerView!.startDownloadImage()
-            self.bannerView?.showClose(true)
+            self.bannerView?.showClose(false)
         }
     }
 
@@ -66,9 +74,9 @@ class ViewController: UIViewController,WQBannerViewDelegate {
 
     }
 
-    func bannerView_didSelectImageView_withData(bannerView: WQBannerView,index: NSInteger,bannerData: String) {
+    func bannerView_didSelectImageView_withData(bannerView: WQBannerView, index: NSInteger, bannerData: String, imageid: String) {
 
-        print("\(index)+\(bannerData)")
+        print("\(index)+\(bannerData)+\(imageid)")
 
     }
 
