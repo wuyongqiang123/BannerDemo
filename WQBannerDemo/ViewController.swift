@@ -36,7 +36,7 @@ class ViewController: UIViewController,WQBannerViewDelegate {
         }
         else {
             self.bannerView = WQBannerView.init(frame: CGRectMake(0, 50, self.view.frame.size.width, 140), direction: BannerViewScrollDirection.ScrollDirectionLandscape, images: dataArray)
-            self.bannerView?.backgroundColor = UIColor.redColor()
+            self.bannerView?.backgroundColor = UIColor.clearColor()
             self.bannerView!.rollingDelayTime = 4.0
             self.bannerView!.delegate = self
             self.bannerView?.defaultpageColor = UIColor.redColor()
@@ -47,6 +47,8 @@ class ViewController: UIViewController,WQBannerViewDelegate {
             self.bannerView!.setPageControlStyle(BannerViewPageStyle.PageStyle_Middle)
             self.bannerView!.startDownloadImage()
             self.bannerView?.showClose(false)
+            self.view.addSubview(self.bannerView!)
+            self.bannerView!.startRolling()
         }
     }
 
@@ -56,23 +58,6 @@ class ViewController: UIViewController,WQBannerViewDelegate {
     }
 
     //WQBannerView->delegate
-
-    func imageCachedDidFinish(bannerView: WQBannerView) {
-
-        print("frame = %@",bannerView.frame)
-        if bannerView == self.bannerView {
-            if self.bannerView!.superview == nil {
-                self.view!.addSubview(self.bannerView!)
-            }
-            self.bannerView!.startRolling()
-        }
-        else {
-            self.view!.addSubview(bannerView)
-            bannerView.startRolling()
-        }
-
-
-    }
 
     func bannerView_didSelectImageView_withData(bannerView: WQBannerView, index: NSInteger, bannerData: String, imageid: String) {
 

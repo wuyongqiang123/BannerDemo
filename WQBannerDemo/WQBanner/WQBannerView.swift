@@ -24,8 +24,6 @@ enum BannerViewPageStyle : Int {
 //代理方法
 protocol WQBannerViewDelegate {
 
-    //图片下载完成后加到subview上的代理方法
-    func imageCachedDidFinish(bannerView: WQBannerView)
     //选中力片的代理
     func bannerView_didSelectImageView_withData(bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)
     //close 左上角Ｘ按扭
@@ -35,8 +33,7 @@ protocol WQBannerViewDelegate {
 
 let Banner_StartTag: NSInteger = 1000
 
-class WQBannerView: UIView,UIScrollViewDelegate,
-    SDWebImageManagerDelegate {
+class WQBannerView: UIView,UIScrollViewDelegate {
 
     //代理
     var delegate: WQBannerViewDelegate?
@@ -83,7 +80,6 @@ class WQBannerView: UIView,UIScrollViewDelegate,
     deinit {
         self.delegate = nil
         NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(WQBannerView.rollingScrollAction), object: nil)
-        SDWebImageManager.sharedManager().cancelForDelegate(self)
     }
 
     convenience init(frame: CGRect,direction: BannerViewScrollDirection,images: NSArray){
@@ -161,15 +157,13 @@ class WQBannerView: UIView,UIScrollViewDelegate,
         if (self.enableRolling != nil) {
             NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(WQBannerView.rollingScrollAction), object: nil)
         }
-        SDWebImageManager.sharedManager().cancelForDelegate(self)
-        for i in 0 ..< self.imagesArray!.count {
-            let dic: NSDictionary = self.imagesArray![i] as! NSDictionary
-            let url: String = dic .objectForKey(imageKey!) as! String
-            if url.isNotEmpty() {
-                SDWebImageManager.sharedManager().downloadWithURL(NSURL(string: url)!, delegate: self)
-            }
+        for _ in 0 ..< self.imagesArray!.count {
+                self.totalCount! -= 1
+                if self.totalCount == 0 {
+                    self.curPage = 1
+                    self.refreshScrollView()
+                }
         }
-
     }
     /**
      设置图片是否圆角
@@ -245,10 +239,8 @@ class WQBannerView: UIView,UIScrollViewDelegate,
             let imageView: UIImageView = (self.scrollView!.viewWithTag(Banner_StartTag + i) as! UIImageView)
             let dic: NSDictionary = curimageUrls[i] as! NSDictionary
             let url: String = dic .objectForKey(imageKey!) as! String
-                //(dic["img_url"] as! String)
-            if url.isNotEmpty() {
-                imageView.setImageWithURL(NSURL(string: url)!, placeholderImage: nil)
-            }
+            imageView.kf_setImageWithURL(NSURL(string: url)!)
+
         }
 
         // 水平滚动
@@ -348,7 +340,7 @@ class WQBannerView: UIView,UIScrollViewDelegate,
     //开始滚动
     func startRolling() {
 
-        if !self.imagesArray!.isNotEmpty() || self.imagesArray!.count == 1 {
+        if self.imagesArray!.count == 1 {
             return
         }
         self.stopRolling()
@@ -393,15 +385,15 @@ class WQBannerView: UIView,UIScrollViewDelegate,
 
     //SDWebImageManager Delegate 图像下载完成后
 
-    func webImageManager(imageManager: SDWebImageManager, didFinishWithImage image: UIImage) {
-        self.totalCount! -= 1
-        if self.totalCount == 0 {
-            self.curPage = 1
-            self.refreshScrollView()
-            self.delegate?.imageCachedDidFinish(self)
-
-        }
-    }
+//    func webImageManager(imageManager: SDWebImageManager, didFinishWithImage image: UIImage) {
+//        self.totalCount! -= 1
+//        if self.totalCount == 0 {
+//            self.curPage = 1
+//            self.refreshScrollView()
+//            self.delegate?.imageCachedDidFinish(self)
+//
+//        }
+//    }
 
     //mark action 点击事件
     func handleTap(tap: UITapGestureRecognizer) {
