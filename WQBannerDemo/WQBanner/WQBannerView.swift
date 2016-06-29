@@ -4,7 +4,7 @@
 //
 //  Created by mac on 16/4/15.
 //  Copyright © 2016年 wyq. All rights reserved.
-//
+//  git地址： https://github.com/wuyongqiang123/BannerDemo
 
 import UIKit
 //滚动的方式
@@ -21,22 +21,15 @@ enum BannerViewPageStyle : Int {
     case PageStyle_Right//在右边显示
     case PageStyle_Middle//在中间显示
 }
-//代理方法
-protocol WQBannerViewDelegate {
-
-    //选中力片的代理
-    func bannerView_didSelectImageView_withData(bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)
-    //close 左上角Ｘ按扭
-    func bannerViewdidClosed(bannerView: WQBannerView)
-
-}
 
 let Banner_StartTag: NSInteger = 1000
 
 class WQBannerView: UIView,UIScrollViewDelegate {
 
-    //代理
-    var delegate: WQBannerViewDelegate?
+    //选择图片回调
+    var didSelectImageView:((bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)->Void)?
+    //关闭按扭回调
+    var bannerViewdidClosed:((bannerView: WQBannerView)->Void)?
     // 存放所有需要滚动的图片URL NSString
     var imagesArray: NSArray?
     // scrollView滚动的方向
@@ -78,7 +71,6 @@ class WQBannerView: UIView,UIScrollViewDelegate {
     }
 
     deinit {
-        self.delegate = nil
         NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(WQBannerView.rollingScrollAction), object: nil)
     }
 
@@ -132,7 +124,6 @@ class WQBannerView: UIView,UIScrollViewDelegate {
         self.pageControl!.numberOfPages = self.imagesArray!.count
         self.addSubview(self.pageControl!)
         self.pageControl!.currentPage = 0
-
 
 
     }
@@ -226,7 +217,9 @@ class WQBannerView: UIView,UIScrollViewDelegate {
     //关闭按钮的方法
     func closeBanner() {
         self.stopRolling()
-        self.delegate?.bannerViewdidClosed(self)
+        if (self.bannerViewdidClosed != nil) {
+            self.bannerViewdidClosed!(bannerView: self)
+        }
 
     }
 
@@ -383,24 +376,77 @@ class WQBannerView: UIView,UIScrollViewDelegate {
 
     }
 
-    //SDWebImageManager Delegate 图像下载完成后
-
-//    func webImageManager(imageManager: SDWebImageManager, didFinishWithImage image: UIImage) {
-//        self.totalCount! -= 1
-//        if self.totalCount == 0 {
-//            self.curPage = 1
-//            self.refreshScrollView()
-//            self.delegate?.imageCachedDidFinish(self)
-//
-//        }
-//    }
 
     //mark action 点击事件
     func handleTap(tap: UITapGestureRecognizer) {
 
-        self.delegate?.bannerView_didSelectImageView_withData(self, index: self.curPage!-1, bannerData: self.imagesArray![self.curPage!-1].objectForKey(imageKey!) as! String, imageid: self.imagesArray![self.curPage!-1].objectForKey(imageId!) as! String)
 
+        if (self.didSelectImageView != nil) {
+            self.didSelectImageView!(bannerView: self, index: self.curPage!-1, bannerData: self.imagesArray![self.curPage!-1].objectForKey(imageKey!) as! String, imageid: self.imagesArray![self.curPage!-1].objectForKey(imageId!) as! String)
+        }
     }
 
+
+}
+
+extension WQBannerView {
+
+    // 函数式编程
+  static  func setInit(frame: CGRect,direction: BannerViewScrollDirection,images: NSArray)->WQBannerView {
+        let bannerview = WQBannerView.init(frame: frame, direction: direction, images: images)
+        return bannerview
+    }
+
+    func addDefaultpageColor(color: UIColor)->WQBannerView {
+        self.defaultpageColor = color
+        return self
+    }
+    func addSelectpageColor(color: UIColor)->WQBannerView {
+        self.selectpageColor = color
+        return self
+    }
+    func addImageKey(key: String)->WQBannerView {
+        self.imageKey = key
+        return self
+    }
+    func addImageId(id: String)->WQBannerView {
+        self.imageId = id
+        return self
+    }
+    func addSquare(asquare: CGFloat)->WQBannerView {
+        self.setSquare(asquare)
+        return self
+    }
+    func addPageControlStyle(pageStyle: BannerViewPageStyle)->WQBannerView {
+        self.setPageControlStyle(pageStyle)
+        return self
+    }
+    func addRollingDelayTime(time: NSTimeInterval)->WQBannerView {
+        self.rollingDelayTime = time
+        return self
+    }
+    func addShowClose(show: Bool)->WQBannerView {
+        self.showClose(show)
+        return self
+    }
+    func addStartRolling()->WQBannerView {
+        self.startRolling()
+        return self
+    }
+
+    func addStartDownloadImage()->WQBannerView   {
+        self.startDownloadImage()
+        return self
+    }
+
+    func addDidSelectImageViewEvent(event: ((bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)->Void)?)->WQBannerView{
+
+        self.didSelectImageView = event
+        return self
+    }
+    func addBannerViewdidClosed(event:((bannerView: WQBannerView)->Void)?)->WQBannerView {
+        self.bannerViewdidClosed = event
+        return self
+    }
 
 }

@@ -1,3 +1,4 @@
+
 //
 //  ViewController.swift
 //  WQBannerDemo
@@ -8,7 +9,7 @@
 
 import UIKit
 
-class ViewController: UIViewController,WQBannerViewDelegate {
+class ViewController: UIViewController {
 
     var bannerView: WQBannerView?
 
@@ -35,10 +36,10 @@ class ViewController: UIViewController,WQBannerViewDelegate {
             self.bannerView?.reloadBannerWithData(dataArray)
         }
         else {
+            //创建方式一(普通创建方法)
             self.bannerView = WQBannerView.init(frame: CGRectMake(0, 50, self.view.frame.size.width, 140), direction: BannerViewScrollDirection.ScrollDirectionLandscape, images: dataArray)
             self.bannerView?.backgroundColor = UIColor.clearColor()
             self.bannerView!.rollingDelayTime = 4.0
-            self.bannerView!.delegate = self
             self.bannerView?.defaultpageColor = UIColor.redColor()
             self.bannerView?.selectpageColor = UIColor.blueColor()
             self.bannerView?.imageKey = "image_url"
@@ -46,9 +47,29 @@ class ViewController: UIViewController,WQBannerViewDelegate {
             self.bannerView?.setSquare(0)
             self.bannerView!.setPageControlStyle(BannerViewPageStyle.PageStyle_Middle)
             self.bannerView!.startDownloadImage()
-            self.bannerView?.showClose(false)
-            self.view.addSubview(self.bannerView!)
             self.bannerView!.startRolling()
+            self.bannerView?.showClose(false)
+            self.bannerView?.didSelectImageView = { (bannerView, index, bannerData, imageid) in
+                                print("\(index)+\(bannerData)+\(imageid)")
+                            }
+            self.bannerView?.bannerViewdidClosed = { (bannerView) in
+                                if ((bannerView.superview) != nil)
+                                {
+                                    bannerView.removeFromSuperview()
+                                }
+                            }
+            self.view.addSubview(self.bannerView!)
+
+            //创建方式二(链式创建方法)
+//            self.bannerView = WQBannerView.setInit(CGRectMake(0, 50, self.view.frame.size.width, 140), direction: BannerViewScrollDirection.ScrollDirectionLandscape, images: dataArray).addRollingDelayTime(4.0).addDefaultpageColor(UIColor.redColor()).addSelectpageColor(UIColor.blueColor()).addImageKey("image_url").addImageId("imageId").addSquare(0).addPageControlStyle(BannerViewPageStyle.PageStyle_Middle).addStartDownloadImage().addShowClose(false).addStartRolling().addDidSelectImageViewEvent({ (bannerView, index, bannerData, imageid) in
+//                print("\(index)+\(bannerData)+\(imageid)")
+//            }).addBannerViewdidClosed({ (bannerView) in
+//                if ((bannerView.superview) != nil)
+//                {
+//                    bannerView.removeFromSuperview()
+//                }
+//            })
+//            self.view.addSubview(self.bannerView!)
         }
     }
 
@@ -57,22 +78,6 @@ class ViewController: UIViewController,WQBannerViewDelegate {
         // Dispose of any resources that can be recreated.
     }
 
-    //WQBannerView->delegate
-
-    func bannerView_didSelectImageView_withData(bannerView: WQBannerView, index: NSInteger, bannerData: String, imageid: String) {
-
-        print("\(index)+\(bannerData)+\(imageid)")
-
-    }
-
-    func bannerViewdidClosed(bannerView: WQBannerView) {
-
-        if ((bannerView.superview) != nil)
-        {
-            bannerView.removeFromSuperview()
-        }
-
-    }
 
 
 }
