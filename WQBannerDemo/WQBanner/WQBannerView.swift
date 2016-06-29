@@ -27,9 +27,11 @@ let Banner_StartTag: NSInteger = 1000
 class WQBannerView: UIView,UIScrollViewDelegate {
 
     //选择图片回调
-    var didSelectImageView:((bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)->Void)?
+    var didSelectImageView:((bannerView: WQBannerView,index: NSInteger)->Void)?
     //关闭按扭回调
     var bannerViewdidClosed:((bannerView: WQBannerView)->Void)?
+
+
     // 存放所有需要滚动的图片URL NSString
     var imagesArray: NSArray?
     // scrollView滚动的方向
@@ -228,10 +230,9 @@ class WQBannerView: UIView,UIScrollViewDelegate {
 
         let curimageUrls: NSArray = self.getDisplayImagesWithPageIndex(self.curPage!)
 
-        for i in 0 ..< 3 {
+        for i in 0 ..< curimageUrls.count {
             let imageView: UIImageView = (self.scrollView!.viewWithTag(Banner_StartTag + i) as! UIImageView)
-            let dic: NSDictionary = curimageUrls[i] as! NSDictionary
-            let url: String = dic .objectForKey(imageKey!) as! String
+            let url: String  = curimageUrls[i] as! String
             imageView.kf_setImageWithURL(NSURL(string: url)!)
 
         }
@@ -382,7 +383,7 @@ class WQBannerView: UIView,UIScrollViewDelegate {
 
 
         if (self.didSelectImageView != nil) {
-            self.didSelectImageView!(bannerView: self, index: self.curPage!-1, bannerData: self.imagesArray![self.curPage!-1].objectForKey(imageKey!) as! String, imageid: self.imagesArray![self.curPage!-1].objectForKey(imageId!) as! String)
+            self.didSelectImageView!(bannerView: self, index: self.curPage!-1)
         }
     }
 
@@ -439,7 +440,7 @@ extension WQBannerView {
         return self
     }
 
-    func addDidSelectImageViewEvent(event: ((bannerView: WQBannerView,index: NSInteger,bannerData: String,imageid: String)->Void)?)->WQBannerView{
+    func addDidSelectImageViewEvent(event: ((bannerView: WQBannerView,index: NSInteger)->Void)?)->WQBannerView{
 
         self.didSelectImageView = event
         return self
